@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mapa Mental NPS – Cliente Centralizado</title>
+
+  <!-- Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --azul-grandeza: #003a70;
+      --azul-acompanamiento: #294e8d;
+      --azul-claro: #e6f0ff;
+      --verde-trans: #b68e3f;
+      --gris-texto: #4b5563;
+      --gris-suave: #e5e7eb;
+      --rojo-baja: #e11d48;
+      --verde-alza: #16a34a;
+    }
+
+    * {
+      font-family: 'Poppins', sans-serif !important;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #050816;
+    }
+
+    .mindmap-wrapper {
+      padding: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .mindmap-wrapper {
+    margin-top: 100px; /* puedes subir o bajar */
+    }
+
+    .mindmap {
+      position: relative;
+      width: 1600px;
+      height: 900px;
+      margin: 0 auto;
+      border-radius: 32px;
+      background: radial-gradient(circle at top, #1c2840 0%, #0b1220 60%, #050816 100%);
+      box-shadow: 0 22px 60px rgba(15,23,42,0.45);
+      overflow: hidden;
+    }
+
+    /* Leyenda arriba izquierda */
+    .legend {
+      position: absolute;
+      top: 22px;
+      left: 22px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      font-size: 12px;
+      color: #4b5563;
+      background: rgba(255,255,255,0.95);
+      padding: 6px 18px;
+      border-radius: 999px;
+      box-shadow: 0 8px 26px rgba(15,23,42,0.25);
+      z-index: 20;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .legend-dot.rel { background: var(--azul-acompanamiento); }
+    .legend-dot.trx { background: var(--verde-trans); }
+
+    /* Etiquetas de zonas */
+    .zone-label {
+      position: absolute;
+      font-size: 18px;
+      letter-spacing: 0.78em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      z-index: 10;
+    }
+    .zone-contacto {
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .zone-digital {
+      top: 50%;
+      left: 70px;
+      transform: translateY(-50%) rotate(-90deg);
+    }
+    .zone-banqueros {
+      top: 50%;
+      right: 70px;
+      transform: translateY(-50%) rotate(90deg);
+    }
+
+    /* Nodo central */
+    .center-node {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 280px;
+      height: 280px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at top, var(--azul-acompanamiento), var(--azul-grandeza));
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(15,23,42,0.65);
+      z-index: 1;
+    }
+
+    .center-node h1 {
+      margin: 0 0 12px;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .center-node p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.4;
+      opacity: 0.96;
+    }
+
+    /* Tarjetas */
+    .node {
+      position: absolute;
+      width: 240px;
+      padding: 12px 16px;
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 8px 22px rgba(15,23,42,0.25);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-left: 6px solid transparent;
+      user-select: none;
+      z-index: 2;
+    }
+    .node:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 32px rgba(15,23,42,0.35);
+    }
+    .node.relacional { border-left-color: var(--azul-acompanamiento); }
+    .node.transaccional { border-left-color: var(--verde-trans); }
+
+    .node.voc,
+    .node.rel-vs-trx {
+    border-left-color: var(--azul-grandeza); /* azul más profundo para “marco” */
+    }
+    .node.open {
+      z-index: 999;
+    }
+
+    .node-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      text-align: center;
+    }
+    .node-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .node-details {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.25s ease, opacity 0.25s ease, margin-top 0.25s ease;
+      margin-top: 0;
+    }
+    .node.open .node-details {
+      max-height: 120px;
+      opacity: 1;
+      margin-top: 8px;
+    }
+
+    .summary-line {
+      font-size: 14px;
+      color: var(--gris-texto);
+      line-height: 1.5;
+      margin-bottom: 4px;
+    }
+    .summary-line strong {
+      font-weight: 600;
+    }
+    .delta {
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-left: 4px;
+    }
+    .delta.positive {
+      background: rgba(22,163,74,0.12);
+      color: var(--verde-alza);
+    }
+    .delta.negative {
+      background: rgba(225,29,72,0.12);
+      color: var(--rojo-baja);
+    }
+    .delta.neutral {
+      background: rgba(148,163,184,0.18);
+      color: #374151;
+    }
+    .segment {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+    .tag-nuevo {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(129,140,248,0.18);
+      color: #4f46e5;
+      font-weight: 600;
+      width: max-content;
+      margin-top: 4px;
+    }
+
+        /* CONTENEDOR GENERAL */
+    .layout-wrapper {
+    width: 100%;
+    max-width: 1600px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    }
+
+    /* TARJETAS UNIFORMES */
+    .layout-card {
+    width: 100%;
+    min-height: 170px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(6px);
+    border-radius: 18px;
+    
+    padding: 28px 38px;
+
+    /* Delimitación visual fuerte */
+    border-top: 4px solid #1e60ff; /* Azul Actinver */
+    box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.45);
+
+    /* Animación ligera para presentación */
+    transform: translateY(0);
+    transition: all 0.25s ease;
+    }
+
+    /* Efecto Hover */
+    .layout-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 16px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    /* TITULOS */
+    .layout-title {
+    margin: 0 0 10px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #f1f5f9;
+    }
+
+    /* TEXTO */
+    .layout-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: #cbd5e1;
+    }
+
+    /* SECCIÓN DEL MAPA EN LA 3RA TARJETA */
+    .layout-card .mindmap-wrapper {
+    margin-top: 12px;
+    }  
+
+/* Tarjetas de contexto (antes del mapa) */
+.context-wrapper {
+  max-width: 1200px;
+  margin: 32px auto 0;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.context-card {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 20px;
+  padding: 16px 20px;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.45);
+  border-left: 5px solid #0057b8; /* azul acompañamiento */
+  color: #e5e7eb;
+}
+
+.context-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.context-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d1d5db;
+}
+
+/* Opcional: que en pantallas chicas se apilen */
+@media (max-width: 900px) {
+  .context-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Contenedor general */
+.nps-summary-container {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+/* Contenedor de las dos tarjetas */
+.nps-summary-container {
+  margin-top: 60px;      /* separa del mapa */
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+
+/* Estilo de cada tarjeta */
+.nps-card {
+  width: 330px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  padding: 22px 28px;
+  color: #fff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Efecto hover */
+.nps-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+}
+
+/* Títulos */
+.nps-card h3 {
+  margin: 0 0 5px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Puntaje grande */
+.nps-score {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #4FB7F3;   /* azul CX bonito */
+}
+
+/* Lista */
+.nps-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1.45rem;
+  font-size: 14px;
+}
+
+/* Contenedor mapa + resumen */
+.map-and-summary {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+/* CONTENEDOR DE LAS TARJETAS NPS (DENTRO DE LA TARJETA 4) */
+.nps-summary-container {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+/* TARJETAS INDIVIDUALES */
+.nps-card {
+  width: 320px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  padding: 20px 26px;
+  color: #f9fafb;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nps-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.45);
+}
+
+/* TÍTULO DE CADA TARJETA */
+.nps-card h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* SCORE GRANDE */
+.nps-score {
+  margin: 0 0 10px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #4FB7F3; /* azul bonito CX */
+}
+
+/* LISTA DE DETALLE */
+.nps-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.4rem;
+}
+
+.intro-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.intro-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 180px;
+}
+
+.page-header {
+  width: 100%;
+  max-width: 1600px;
+  margin: 20px auto 28px;
+  padding-left: 8px;
+  display: flex;
+  justify-content: flex-start; /* fuerza izquierda */
+}
+
+.page-title {
+  text-align: left;           /* fuerza izquierda */
+  font-size: 28px;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+  margin: 0;
+  position: relative;
+}
+
+/* Línea decorativa */
+.page-title::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--azul-grandeza),
+    var(--azul-acompanamiento)
+  );
+  margin-top: 10px;
+  margin-left: 0;   /* evita centrado */
+  border-radius: 2px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="layout-wrapper">
+
+  <div class="page-header">
+  <h1 class="page-title">Resultados NPS 2025</h1>
+</div>
+
+<div class="intro-cards">
+
+  <!-- TARJETA 1 -->
+  <div class="layout-card intro-card">
+    <h2 class="layout-title">Voz del Cliente (VoC)</h2>
+    <p class="layout-text">
+      La VoC integra el feedback real del cliente para identificar fricciones,
+      priorizar mejoras y fortalecer la lealtad. Es la base que sostiene
+      decisiones que impactan directamente la experiencia y el NPS.
+    </p>
+  </div>
+
+  <!-- TARJETA 2 -->
+  <div class="layout-card intro-card">
+    <h2 class="layout-title">Relacional vs Transaccional</h2>
+    <p class="layout-text">
+      Las encuestas relacionales miden la percepción global del cliente.
+      Las transaccionales evalúan una interacción puntual.
+      Juntas explican el desempeño táctico y estratégico del journey.
+    </p>
+  </div>
+
+</div>
+
+    <!-- TARJETA 3: MAPA + RESUMEN NPS -->
+    <div class="layout-card">
+    <h2 class="layout-title">Mapa integrado de NPS</h2>
+    <p class="layout-text">
+        Distribución de resultados por tipo de encuesta y canal de atención.
+    </p>
+
+    <div class="map-and-summary">
+
+        <!-- MAPA -->
+        <div class="mindmap-wrapper">
+        <div class="mindmap">
+
+            <!-- Leyenda -->
+            <div class="legend">
+            <div class="legend-item">
+                <span class="legend-dot rel"></span> <strong>RELACIONAL</strong>
+            </div>
+
+            <div class="legend-item">
+                <span class="legend-dot trx"></span> <strong>TRANSACCIONAL</strong>
+            </div>
+            </div>
+
+            <!-- Etiquetas de zonas -->
+            <div class="zone-label zone-contacto"><strong>Canales de contacto</strong></div>
+            <div class="zone-label zone-digital"><strong>Digital</strong></div>
+            <div class="zone-label zone-banqueros"><strong>Banqueros</strong></div>
+
+            <!-- Nodo central -->
+            <div class="center-node">
+            <h1>Medición CX</h1>
+            <p>Resultados NPS 2025 vs 2024<br>
+                por tipo de encuesta.</p>
+            </div>
+
+        <!-- ========== TARJETAS ========== -->
+
+        <!-- CANALES DE CONTACTO -->
+        <div class="node transaccional anfitrion">
+          <div class="node-header">
+            <div class="node-title">Anfitrión</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 80 pts</strong> | 2024: 83
+              Incremento: <span class="delta negative">-4 pts</span>
+            </div>
+            <div class="segment">Segmento: Centros Financieros
+            Sin meta. 
+          </div>
+         </div>
+        </div>
+
+        <div class="node transaccional apertura">
+          <div class="node-header">
+            <div class="node-title">Apertura de cuenta</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 88 pts</strong> | 2024: 78
+              Incremento: <span class="delta positive">+10 pts</span>
+            </div>
+            <div class="segment">Segmento: Centros Financieros
+            Sin meta. 
+          </div>
+         </div>
+        </div>
+
+        <div class="node transaccional cat">
+          <div class="node-header">
+            <div class="node-title">CAT</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 71 pts</strong> | 2024: 79
+              Incremento: <span class="delta negative">-8 pts</span>
+            </div>
+            <div class="segment">Segmento: Contact center </div>
+            <div class="segment">Sin meta. </div>
+          </div>
+        </div>
+
+        <!-- DIGITAL -->
+        <div class="node relacional app-digital">
+          <div class="node-header">
+            <div class="node-title">App Digital</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 56 pts</strong> | 2024: -
+              <span class="tag-nuevo">Nva. medición</span>
+            </div>
+            <div class="segment">Segmento: Digital</div>
+            <div class="segment">Sin meta </div>
+          </div>
+        </div>
+
+        <div class="node relacional liverpool-rel">
+          <div class="node-header">
+            <div class="node-title">Activa Liverpool</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 53.3 pts</strong> | 2024: 50.8
+              Incremento: <span class="delta positive">+2 pts</span>
+            </div>
+            <div class="segment">Segmento: Digital</div>
+            <div class="segment">Sin meta </div>
+          </div>
+        </div>
+
+        <div class="node relacional dinn">
+          <div class="node-header">
+            <div class="node-title">DINN</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 57 pts</strong> | 2024: 50.7
+              Incremento: <span class="delta positive">+6 pts</span>
+            </div>
+            <div class="segment">Segmento: Digital</div>
+            <div class="segment">Meta 2025: 50 pts. </div>
+          </div>
+        </div>
+
+        <div class="node relacional trade">
+          <div class="node-header">
+            <div class="node-title">Actinver Trade</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 37 pts</strong> | 2024: 44
+              Incremento: <span class="delta negative">-8 pts</span>
+            </div>
+            <div class="segment">Segmento: Digital</div>
+            <div class="segment">Meta 2025: 40 pts. </div>
+          </div>
+        </div>
+
+        <!-- BANQUEROS -->
+        <div class="node relacional privada">
+          <div class="node-header">
+            <div class="node-title">Banca Privada / WM</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 77 pts</strong> | 2024: 77
+              Incremento: <span class="delta neutral">+0.3 pts</span>
+            </div>
+            <div class="segment">Segmento: Asesoría</div>
+            <div class="segment">Meta 2025: 81 pts. </div>
+          </div>
+        </div>
+
+        <div class="node relacional patrimonial">
+          <div class="node-header">
+            <div class="node-title">Patrimonial</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 67 pts</strong> | 2024: 66
+              Incremento: <span class="delta positive">+1 pts</span>
+            </div>
+            <div class="segment">Segmento: Asesoría</div>
+            <div class="segment">Meta 2025: 70 pts. </div>
+          </div>
+        </div>
+
+        <div class="node relacional fiduciario">
+          <div class="node-header">
+            <div class="node-title">Fiduciario</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 7 pts</strong> | 2024: 24
+              Incremento: <span class="delta negative">-17 pts</span>
+            </div>
+            <div class="segment">Segmento: Asesoría</div>
+            <div class="segment">Sin meta </div>
+          </div>
+        </div>
+
+        <div class="node relacional banca-inst">
+          <div class="node-header">
+            <div class="node-title">Banca Institucional &amp; Gob.</div>
+          </div>
+          <div class="node-details">
+            <div class="summary-line">
+              <strong>NPS 2025: 80 pts</strong> | 2024: -
+              <span class="tag-nuevo">Nva. medición</span>
+            </div>
+            <div class="segment">Segmento: Banca Corporativa</div>
+            <div class="segment">Sin meta </div>
+          </div>
+        </div>
+
+    </div>
+</div>
+
+  <!-- TARJETA 4: Resumen general de NPS -->
+  <div class="layout-card">
+    <h2 class="layout-title">Resumen general de NPS</h2>
+    <p class="layout-text">
+      Desglose global de resultados por tipo de encuesta.
+    </p>
+
+    <div class="nps-summary-container">
+
+      <div class="nps-card">
+        <h3>NPS Relacional</h3>
+        <p class="nps-score">56 pts</p>
+        <ul>
+          <li><strong>Promotores:</strong> 70% (21,740)</li>
+          <li><strong>Pasivos:</strong> 16% (5,022)</li>
+          <li><strong>Detractores:</strong> 14% (4,241)</li>
+          <li><strong>Total respuestas:</strong> 31,003</li>
+        </ul>
+      </div>
+
+      <div class="nps-card">
+        <h3>NPS Transaccional</h3>
+        <p class="nps-score">76 pts</p>
+        <ul>
+          <li><strong>Promotores:</strong> 85% (29,201)</li>
+          <li><strong>Pasivos:</strong> 5% (1,794)</li>
+          <li><strong>Detractores:</strong> 9% (3,249)</li>
+          <li><strong>Total respuestas:</strong> 34,244</li>
+        </ul>
+      </div>
+
+    </div>
+  </div> <!-- fin tarjeta 4 -->
+
+</div> <!-- fin layout-wrapper -->
+
+<script>
+  // Ángulos para cada tarjeta (en grados)
+  // -90 es arriba, 0 es derecha, 90 abajo, 180/ -180 izquierda
+        const positions = {
+        // CANALES DE CONTACTO – arriba
+        anfitrion:       -90,   // se queda igual (centro arriba)
+        apertura:        -50,   // antes -60 → baja un poco y se va tantito a la derecha
+        cat:             -130,  // antes -120 → baja un poco y se va tantito a la izquierda
+
+        // BANQUEROS – derecha
+        privada:         -20,
+        patrimonial:      10,
+        fiduciario:       40,
+        "banca-inst":     65,   // antes 70 → más a la derecha y abajo, se separa de Trade
+
+        // DIGITAL – izquierda
+        "app-digital":  -160,
+        "liverpool-rel":-190,
+        dinn:           -220,
+        trade:          -245,    // antes -250 → un poquito más hacia la izquierda y arriba
+
+        // TARJETAS META (parte baja)
+        voc:            -200,   // abajo-izquierda (entre DINN y Trade)
+        "rel-vs-trx":   120     // abajo-derecha (debajo de Fiduciario / Banca Inst)
+  }
+
+  const radius = 320; // qué tan lejos del centro se ponen las tarjetas
+
+  window.addEventListener('load', () => {
+    const map = document.querySelector('.mindmap');
+    const centerX = map.offsetWidth / 2;
+    const centerY = map.offsetHeight / 2; // puedes sumar +10 si lo quieres más abajo
+
+    // Posicionar cada tarjeta alrededor del círculo
+    Object.entries(positions).forEach(([cls, angleDeg]) => {
+      const node = document.querySelector('.node.' + cls);
+      if (!node) return;
+
+      const angleRad = angleDeg * Math.PI / 180;
+      const x = centerX + radius * Math.cos(angleRad);
+      const y = centerY + radius * Math.sin(angleRad);
+
+      const w = node.offsetWidth;
+      const h = node.offsetHeight;
+
+      node.style.position = 'absolute';
+      node.style.left = `${x - w / 2}px`;
+      node.style.top  = `${y - h / 2}px`;
+    });
+
+    // Acordeón: solo una tarjeta abierta a la vez
+    const nodeCards = document.querySelectorAll('.node');
+    nodeCards.forEach((card) => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const yaEstabaAbierta = card.classList.contains('open');
+        nodeCards.forEach((c) => c.classList.remove('open'));
+        if (!yaEstabaAbierta) {
+          card.classList.add('open');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

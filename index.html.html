@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>OKR CX 2025 - Autoevaluación</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #050b18;
+      --bg-card: #0b1630;
+      --bg-card-alt: #0f1f3d;
+      --accent: #00c3ff;
+      --accent-soft: rgba(0, 195, 255, 0.15);
+      --accent-strong: #4cf3c2;
+      --text-main: #f4f7ff;
+      --text-muted: #a7b4d8;
+      --border-soft: rgba(255, 255, 255, 0.06);
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.55);
+      --radius-card: 20px;
+      --transition-fast: 0.2s ease;
+    }
+        * {
+      font-family: 'Poppins', sans-serif !important;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top left, #15264a 0, #050b18 45%, #02040a 100%);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .page {
+      max-width: 1100px;
+      width: 100%;
+      padding: 32px 20px 40px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(0, 195, 255, 0.18), rgba(76, 243, 194, 0.18));
+      border: 1px solid rgba(0, 195, 255, 0.35);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-strong);
+      box-shadow: 0 0 10px rgba(76, 243, 194, 0.9);
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 640px;
+    }
+
+    .okr-grid {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .okr-card {
+      background: radial-gradient(circle at top left, var(--bg-card-alt) 0, var(--bg-card) 55%);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .okr-card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: radial-gradient(circle at top right, rgba(0, 195, 255, 0.25), transparent 55%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-fast);
+    }
+
+    .okr-card:hover::before {
+      opacity: 1;
+    }
+
+    .okr-card-header {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      cursor: pointer;
+      text-align: left;
+      position: relative;
+      z-index: 1;
+    }
+
+    .okr-header-main {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-width: calc(100% - 44px);
+    }
+
+    .okr-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-strong);
+    }
+
+    .okr-title {
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .okr-pill {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .okr-toggle-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      background: rgba(0, 0, 0, 0.25);
+      transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .okr-card.open .okr-toggle-icon {
+      transform: rotate(90deg);
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .okr-card-body {
+      padding: 0 18px 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.26s ease-out, padding-bottom 0.26s ease-out;
+    }
+
+    .okr-card.open .okr-card-body {
+      padding-bottom: 16px;
+      max-height: 600px; /* suficiente para el contenido; ajustable */
+    }
+
+    .okr-intro {
+      margin: 2px 0 10px;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .okr-intro strong {
+      color: var(--accent-strong);
+    }
+
+    .okr-body-title {
+      margin: 8px 0 4px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+    }
+
+    .okr-list {
+      margin: 0 0 10px 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .okr-list li {
+      margin-bottom: 4px;
+    }
+
+    .okr-value {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .okr-value strong {
+      color: var(--accent-strong);
+    }
+
+    @media (max-width: 700px) {
+      .page {
+        padding: 20px 12px 32px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .okr-card-header {
+        padding: 14px 14px;
+      }
+
+      .okr-card-body {
+        padding: 0 14px 0;
+      }
+
+      .okr-card.open .okr-card-body {
+        padding-bottom: 14px;
+      }
+      }
+      .okr-map-btn {
+    margin: 8px 0 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 195, 255, 0.7);
+    background: rgba(0, 195, 255, 0.1);
+    color: #f4f7ff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+
+  .okr-map-btn span {
+    font-size: 14px;
+  }
+
+  .okr-map-btn:hover {
+    background: rgba(0, 195, 255, 0.22);
+    box-shadow: 0 0 14px rgba(0, 195, 255, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .okr-map-container {
+    margin-top: 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 195, 255, 0.35);
+    background: rgba(5, 11, 24, 0.9);
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 8px;
+    transition: max-height 0.25s ease-out, padding 0.25s ease-out;
+  }
+
+  .okr-map-container.visible {
+    max-height: 900px; /* ajusta según lo grande que sea tu mapa */
+    padding: 10px 8px 12px;
+  }
+
+/* ===== Modal (Ejecutivo, limpio) ===== */
+.modal { position: fixed; inset: 0; display: none; z-index: 9999; }
+.modal.open { display: block; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
+
+.modal-card {
+  position: relative;
+  width: min(1100px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  margin: 16px auto;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,.35);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header{
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+.modal-title{ font-weight: 800; font-size: 16px; }
+.modal-subtitle{ font-size: 13px; opacity: .75; margin-top: 2px; }
+
+.modal-close{
+  border: 0;
+  background: rgba(0,0,0,.06);
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* ===== Collage Grid ===== */
+.collage-grid{
+  padding: 14px;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
+
+.collage-grid img{
+  width: 100%;
+  height: 220px;             /* ajustable */
+  object-fit: contain;       /* ✅ no recorta */
+  background: #0b1220;       /* fondo oscuro elegante */
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
+  padding: 8px;              /* “marco” */
+  cursor: zoom-in;           /* hint */
+}
+
+/* Layout tipo collage (10 imágenes) */
+.collage-grid img:nth-child(1){ grid-column: span 7; height: 240px; }
+.collage-grid img:nth-child(2){ grid-column: span 5; height: 240px; }
+.collage-grid img:nth-child(3){ grid-column: span 4; height: 170px; }
+.collage-grid img:nth-child(4){ grid-column: span 4; height: 170px; }
+.collage-grid img:nth-child(5){ grid-column: span 4; height: 170px; }
+.collage-grid img:nth-child(6){ grid-column: span 6; height: 200px; }
+.collage-grid img:nth-child(7){ grid-column: span 6; height: 200px; }
+.collage-grid img:nth-child(8){ grid-column: span 4; height: 170px; }
+.collage-grid img:nth-child(9){ grid-column: span 4; height: 170px; }
+.collage-grid img:nth-child(10){ grid-column: span 4; height: 170px; }
+
+/* Responsive */
+@media (max-width: 800px){
+  .collage-grid{ grid-template-columns: repeat(6, 1fr); }
+  .collage-grid img{ grid-column: span 6 !important; height: 200px !important; }
+}
+
+/* ===== Lightbox (zoom imagen) ===== */
+.img-lightbox{ position: fixed; inset: 0; display: none; z-index: 10000; }
+.img-lightbox.open{ display: block; }
+.img-lightbox-backdrop{ position:absolute; inset:0; background: rgba(0,0,0,.75); }
+
+.img-lightbox-card{
+  position: relative;
+  width: min(1100px, calc(100vw - 32px));
+  height: min(85vh, 820px);
+  margin: 16px auto;
+  border-radius: 16px;
+  background: rgba(10,15,25,.9);
+  box-shadow: 0 30px 80px rgba(0,0,0,.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.img-lightbox-card img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 16px;
+}
+
+.img-lightbox-close{
+  position:absolute;
+  top: 12px;
+  right: 12px;
+  border: 0;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+
+.okr-map-btn.okr-map-btn--action:hover{
+  transform: translateY(-1px);
+}
+
+/* Forzar subrayado completo en el Entregable 5 */
+.okr-map-btn.okr-map-btn--action{
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+/* Evitar que el span (emoji/icono) rompa el subrayado */
+.okr-map-btn.okr-map-btn--action span{
+  text-decoration: underline;
+}
+
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span> OKR's 2025</span>
+      </div>
+      <h1> Autoevaluación | Pablo José López Santillán (Medición CX)</h1>
+      <p class="subtitle">
+        Cumplimiento de objetivos 2025 | Transformando la Voz del Cliente en accionables estratégicos.
+      </p>
+    </header>
+
+    <section class="okr-grid">
+
+      <!-- OKR 1 -->
+      <article class="okr-card">
+        <button class="okr-card-header" type="button">
+          <div class="okr-header-main">
+            <span class="okr-label">OKR 1</span>
+            <span class="okr-title">NPS | VoC</span>
+            <span class="okr-pill">Arquitectura de medición, NPS relacional y transaccional, comunicación ejecutiva</span>
+          </div>
+          <div class="okr-toggle-icon">›</div>
+        </button>
+        <div class="okr-card-body">
+          <p class="okr-intro">
+            Transformé la arquitectura de medición de VoC, ampliando la cobertura transaccional, profesionalizando la comunicación ejecutiva del NPS y fortaleciendo la toma de decisiones basada en feedback del cliente.
+          </p>
+          <h4 class="okr-body-title">Logros clave</h4>
+          <ul class="okr-list">
+            <li>Liberé nuevas mediciones transaccionales en canales críticos:<br>
+              – <strong>CAT</strong> vía IVR y mail, con NPS anual de <strong>71 pts</strong>.<br>
+              – <strong>Modelo Postventa</strong>, evaluando asesoría y planeación patrimonial.<br>
+              – <strong>Actinver Digital</strong>, habilitando evaluación desde la app (NPS <strong>59 pts</strong>).
+            </li>
+            <li>Colaboré transversalmente con estrategia, negocio y equipos de diseño CX para generar estudios que mejoraron productos clave: <strong>Afluentes, Productos Bancarios, Portabilidad de Nómina, Banca Farmer, Activa Liverpool, MascotAZ, Obras de Arte.</strong>,</li>
+            <li>Participé en la ejecución de estudios internos de pulso para identificar fricciones operativas y oportunidades de mejora: <strong>(Revoluciona Cultura de Servicio a la Red, Familia e Inversiones, Uso de IA, Nuevos ATMs, Soluciones Alpha, Flagship MU).</strong>,</li>
+            <li>Impulsé programas de desarrollo mediante la medición de certificaciones de la UCA:<strong> BoX, Éxito, Enhance y Mural de Talentos CX.</strong>,</li>
+            <li>Presenté insights ejecutivos a directores divisionales, CF y equipos digitales, acelerando la acción derivada de VoC.</li>
+            <li>Transformé la comunicación institucional del NPS mediante <strong>dashboards HTML interactivos</strong>, elevando claridad, narrativa estratégica y adopción directiva.</li>
+          </ul>
+          <p class="okr-value">
+            
+            Se fortaleció la madurez del modelo de escucha del cliente, aumentando la granularidad del análisis, la capacidad de respuesta y la visibilidad ejecutiva del NPS.
+          </p>
+
+        <!-- 🔘 BOTÓN PARA MOSTRAR EL MAPA MENTAL -->
+         <p class="okr-subtitle">Entregables:</p>
+          <div class="okr-map-container visible">
+
+          <a class="okr-map-btn" href="./Mapa_Resultados_Encuestas_NPS.html" target="_blank" rel="noopener">
+            <span>🧠</span> 1.- Resultados encuestas NPS 2025 & 2024
+          </a>
+
+          <a class="okr-map-btn" href="./E2_Dashboard_Fiduciario.html" target="_blank" rel="noopener">
+            <span>📊</span> 2.- Resultados Fiduciario
+          </a>
+
+          <a class="okr-map-btn" href="./E3_Reporte_Divisiones_Actualizado.html" target="_blank" rel="noopener">
+            <span>🏢</span> 3.- Resultados NPS Relacional Divisiones
+          </a>
+
+          <a class="okr-map-btn" href="./E4_Reporte_CAT.html" target="_blank" rel="noopener">
+            <span>☎️</span> 4.- Resultados CAT IVR & Mail
+          </a>
+
+        <button class="okr-map-btn okr-map-btn--action" type="button" id="btnEntregable5">
+          <span>🖼️</span> 5.- Socialización de NPS a todo Actinver
+        </button>
+    
+        </div>
+        </article>
+       
+      <!-- OKR 2 -->
+      <article class="okr-card">
+        <button class="okr-card-header" type="button">
+          <div class="okr-header-main">
+            <span class="okr-label">OKR 2</span>
+            <span class="okr-title">eNPS | VoGA</span>
+            <span class="okr-pill">Cultura, liderazgo y clima organizacional</span>
+          </div>
+          <div class="okr-toggle-icon">›</div>
+        </button>
+        <div class="okr-card-body">
+          <p class="okr-intro">
+            Consolidé la VoGA como herramienta estratégica de cultura, liderazgo y clima organizacional, ampliando su alcance, profundidad y adopción directiva.
+          </p>
+          <h4 class="okr-body-title">Logros clave</h4>
+          <ul class="okr-list">
+            <li>Ejecuté <strong>tres ediciones institucionales de VoGA</strong>, identificando oportunidades de liderazgo, ambiente y cultura en colaboración con Capital Humano.</li>
+            <li>Desarrollé con Comunicación Interna un plan de difusión por dirección para aumentar la apropiación de resultados.</li>
+            <li>Presenté insights detallados a las <strong>17 direcciones ejecutivas</strong>, con análisis por departamento y accionables específicos.</li>
+            <li>En colaboración con Comunicación y Cultura, logramos un hito institucional al <strong>unificar VoGA y GPTW</strong> en noviembre, alineando dos mediciones clave para clima y cultura.</li>
+            <li>Evolucionamos el diseño y el lenguaje visual de la VoGA a toda la institución, facilitando su comprensión e importancia.</li>
+          </ul>
+          <p class="okr-value">
+            La VoGA se consolidó como un pilar estratégico para decisiones de liderazgo y cultura, con adopción plena en todas las direcciones ejecutivas.
+          </p>
+
+         <p class="okr-subtitle">Entregables:</p>
+          <div class="okr-map-container visible">
+
+          <a class="okr-map-btn" href="E5_Resultados VoGA_eNPS.html" target="_blank" rel="noopener">
+            <span>🧠</span> 5.- Resultados VoGA eNPs
+          </a>
+
+        </div>
+      </article>
+
+      <!-- OKR 3 -->
+      <article class="okr-card">
+        <button class="okr-card-header" type="button">
+          <div class="okr-header-main">
+            <span class="okr-label">OKR 3</span>
+            <span class="okr-title">Cierre de Ciclo | Medallia</span>
+            <span class="okr-pill">Analítica avanzada, automatización y modelo operativo</span>
+          </div>
+          <div class="okr-toggle-icon">›</div>
+        </button>
+        <div class="okr-card-body">
+          <p class="okr-intro">
+            Fortalecimos integralmente el proceso de Cierre de Ciclo mediante analítica avanzada, automatización y un nuevo modelo operativo orientado a eficiencia institucional.
+          </p>
+          <h4 class="okr-body-title">Logros clave</h4>
+          <ul class="okr-list">
+            <li>Entregué especificaciones para reportes estadísticos más robustos, confiables y personalizables.</li>
+            <li>Desarrollamos un prototipo de análisis asistido por IA para clasificar y priorizar automáticamente casos, reduciendo tiempos de respuesta.</li>
+            <li>Implementamos un <strong>Scorecard</strong> para seguimiento operativo y ejecutivo.</li>
+            <li>Diseñamos el <em>blueprint</em> del proceso, incorporando flujos de escalamiento y alertas automáticas en Medallia.</li>
+          </ul>
+          <p class="okr-value">
+            El Cierre de Ciclo continua evolucionando hacia un proceso más ágil, trazable y orientado a resolución eficiente para el cliente.
+          </p>
+
+          <p class="okr-subtitle">Entregables:</p>
+          <div class="okr-map-container visible">
+
+          <a class="okr-map-btn" href="./E1_Tobe.pdf" target="_blank" rel="noopener">
+            <span>📄</span> 1.- TO BE Cierre de Ciclo
+          </a>
+
+          <a class="okr-map-btn" href="./E2_Blueprint.pdf" target="_blank" rel="noopener">
+            <span>🧭</span> 2.- Blueprint Alertas Cierre de Ciclo
+          </a>
+
+        </div>
+
+        </div>
+      </article>
+
+      <!-- OKR 4 -->
+      <article class="okr-card">
+        <button class="okr-card-header" type="button">
+          <div class="okr-header-main">
+            <span class="okr-label">OKR 4</span>
+            <span class="okr-title">Scouting Actinver</span>
+            <span class="okr-pill">Radar de señales tempranas, tendencias, e interacciones desde la VoC </span>
+          </div>
+          <div class="okr-toggle-icon">›</div>
+        </button>
+        <div class="okr-card-body">
+          <p class="okr-intro">
+            Implementé el programa institucional de Scouting para anticipar señales del mercado y fricciones emergentes desde la Voz del Cliente en redes sociales, e informativas.
+          </p>
+          <h4 class="okr-body-title">Logros clave</h4>
+          <ul class="okr-list">
+            <li>Diseñé la metodología integral del programa: fuentes, roles, periodicidad y criterios de priorización.</li>
+            <li>Recopilé y analicé VoC de redes sociales, Google Alerts, Hootsuite, sucursales y app móvil.</li>
+            <li>Entregué reportes ejecutivos con hallazgos y propuestas de mejora priorizadas.</li>
+            <li>En Q3 inicié sesiones con líderes de negocio y de redes sociales para activar acciones derivadas del Scouting.</li>
+          </ul>
+          <p class="okr-value">
+            Actinver ahora cuenta con un radar institucional de señales tempranas para toma de decisiones y aceleración de procesos de mejora.
+          </p>
+
+          <p class="okr-subtitle">Entregables</p>
+
+          <div class="okr-map-container visible">
+
+            <a class="okr-map-btn" href="./E3_Scouting.pdf" target="_blank" rel="noopener">
+              <span>📄</span> 1.- Scouting Actinver
+            </a>
+
+          </div>
+
+        </div>
+      </article>
+
+      <!-- OKR 5 -->
+      <article class="okr-card">
+        <button class="okr-card-header" type="button">
+          <div class="okr-header-main">
+            <span class="okr-label">OKR 5</span>
+            <span class="okr-title">Text Analytics & IA | Medición CX</span>
+            <span class="okr-pill">Analítica avanzada, IA y segmentación granular</span>
+          </div>
+          <div class="okr-toggle-icon">›</div>
+        </button>
+        <div class="okr-card-body">
+          <p class="okr-intro">
+            Profesionalizamos la analítica del feedback del cliente mediante IA, aumentando precisión, velocidad y profundidad del análisis institucional.
+          </p>
+          <h4 class="okr-body-title">Logros clave</h4>
+          <ul class="okr-list">
+            <li>Implementamos tableros en tiempo real para categorización de encuestas relacionales, transaccionales e internas.</li>
+            <li>Creé diccionarios específicos por tipo de encuesta, logrando segmentación granular.</li>
+            <li>Entrenamos un modelo de sentimiento con <strong>95% de precisión</strong>, superando la meta de 70%.</li>
+            <li>Añadimos algoritmos de tendencia para anticipar patrones recurrentes.</li>
+            <li>Fortalecimos la trazabilidad del cierre de ciclo con métricas de cumplimiento y tiempos de respuesta.</li>
+          </ul>
+          <p class="okr-value">
+            Se habilitó un modelo escalable de analítica avanzada que reduce carga operativa y aumenta la capacidad de respuesta institucional.
+          </p>
+
+        <p class="okr-subtitle">Entregables</p>
+
+          <div class="okr-map-container visible">
+
+            <a class="okr-map-btn"
+              href="https://app.powerbi.com/reportEmbed?reportId=37fd216d-c2e9-40ad-b7c3-d05dc0cfa85b&autoAuth=true&ctid=22960abb-bd2b-4f35-a434-4c921455bc49"
+              target="_blank"
+              rel="noopener">
+              <span>📈</span> 1.- Tablero NPS (Power BI)
+            </a>
+          </div>
+
+        </div>
+      </article>
+
+      <!-- OKR 6 -->
+      <article class="okr-card">
+        <button class="okr-card-header" type="button">
+          <div class="okr-header-main">
+            <span class="okr-label">OKR 6</span>
+            <span class="okr-title">Todos sumamos a la gestión de riesgos</span>
+            <span class="okr-pill">Visión de riesgo integrada a CX</span>
+          </div>
+          <div class="okr-toggle-icon">›</div>
+        </button>
+        <div class="okr-card-body">
+          <p class="okr-intro">
+            Integramos la visión de riesgo en el modelo de medición CX para identificar fricciones con potencial impacto operativo y reputacional.
+          </p>
+          <h4 class="okr-body-title">Logros clave</h4>
+          <ul class="okr-list">
+            <li>Detectamos riesgos derivados de la experiencia del cliente y los comunicamos a áreas resolutoras con recomendaciones puntuales.</li>
+            <li>Incorporamos indicadores de riesgo en análisis de VoC y VoGA.</li>
+            <li>Contribuimos a reforzar controles y reducir focos de falla derivados de la experiencia.</li>
+          </ul>
+          <p class="okr-value">
+            Se fortaleció la cultura preventiva y la gestión consciente del riesgo, con enfoque en proteger al cliente y a la organización.
+          </p>
+        </div>
+      </article>
+
+      <!-- OKR 7 -->
+      <article class="okr-card">
+        <button class="okr-card-header" type="button">
+          <div class="okr-header-main">
+            <span class="okr-label">OKR 7</span>
+            <span class="okr-title">Todos impactamos la utilidad operativa</span>
+            <span class="okr-pill">Eficiencia, automatización y uso responsable de recursos</span>
+          </div>
+          <div class="okr-toggle-icon">›</div>
+        </button>
+        <div class="okr-card-body">
+          <p class="okr-intro">
+            Optimizamos la eficiencia del área mediante automatización, reducción de reprocesos y mejora de infraestructura analítica.
+          </p>
+          <h4 class="okr-body-title">Logros clave</h4>
+          <ul class="okr-list">
+            <li>Automatizamos análisis que redujeron tiempos operativos y aumentaron la productividad.</li>
+            <li>Estandarizamos dashboards y reportes, disminuyendo retrabajos.</li>
+            <li>Integramos IA para procesar un volumen creciente de comentarios sin incrementar carga operativa.</li>
+          </ul>
+          <p class="okr-value">
+            Mayor eficiencia, menor desperdicio operativo y uso responsable de recursos desde CX.
+          </p>
+        </div>
+      </article>
+
+      <!-- OKR 8 -->
+      <article class="okr-card">
+        <button class="okr-card-header" type="button">
+          <div class="okr-header-main">
+            <span class="okr-label">OKR 8</span>
+            <span class="okr-title">Todos construimos la experiencia del cliente</span>
+            <span class="okr-pill">Infraestructura de Visión Cliente y NPS institucional</span>
+          </div>
+          <div class="okr-toggle-icon">›</div>
+        </button>
+        <div class="okr-card-body">
+          <p class="okr-intro">
+            Fortalecimos la infraestructura de Visión Cliente para permitir decisiones más precisas y acelerar la mejora del NPS institucional.
+          </p>
+          <h4 class="okr-body-title">Logros clave</h4>
+          <ul class="okr-list">
+            <li>A pesar de cerrar en <strong>72 pts</strong> frente a la meta de 79, ampliamos la capacidad de medición, análisis y comunicación del NPS con nuevas encuestas, dashboards interactivos, y Programas de Socialización del NPS a toda la institcución.</li>
+            <li>Elevamos la trazabilidad de drivers de detracción y mejora, facilitando la priorización directiva.</li>
+          </ul>
+          <p class="okr-value">
+            Actinver cierra el año con un sistema de VoC más maduro, granular y preparado para impulsar el incremento del NPS en 2026.
+          </p>
+        </div>
+      </article>
+
+    </section>
+  </div>
+
+  <script>
+    document.querySelectorAll(".okr-card-header").forEach((header) => {
+      header.addEventListener("click", () => {
+        const card = header.closest(".okr-card");
+        const isOpen = card.classList.contains("open");
+
+        // Cerrar otras tarjetas (acordeón opcional)
+        document.querySelectorAll(".okr-card.open").forEach((openCard) => {
+          if (openCard !== card) openCard.classList.remove("open");
+        });
+
+        // Alternar la tarjeta actual
+        card.classList.toggle("open", !isOpen);
+      });
+    });
+
+    // ...tu JS actual (acordeón, etc.)
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const btnE5 = document.getElementById("btnEntregable5");
+      const modalE5 = document.getElementById("modalE5");
+      const closeE5 = document.getElementById("closeModalE5");
+
+      if (!btnE5) {
+        console.warn("No se encontró #btnEntregable5 (botón Entregable 5).");
+        return;
+      }
+      if (!modalE5) {
+        console.warn("No se encontró #modalE5 (modal del collage). ¿Lo pegaste antes de </body>?");
+        return;
+      }
+
+      function openModalE5() {
+        modalE5.classList.add("open");
+        modalE5.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModalE5() {
+        modalE5.classList.remove("open");
+        modalE5.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      btnE5.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openModalE5();
+      });
+
+    if (closeE5) closeE5.addEventListener("click", closeModalE5);
+
+    // click fuera (backdrop)
+    modalE5.addEventListener("click", (e) => {
+      if (e.target && e.target.dataset && e.target.dataset.close === "true") {
+        closeModalE5();
+      }
+    });
+
+    // Escape
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modalE5.classList.contains("open")) closeModalE5();
+    });
+  });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const lightbox = document.getElementById("imgLightbox");
+  const lightboxImg = document.getElementById("lightboxImg");
+  const closeBtn = document.getElementById("closeImgLightbox");
+
+  function openLightbox(src, alt="Imagen ampliada"){
+    lightboxImg.src = src;
+    lightboxImg.alt = alt;
+    lightbox.classList.add("open");
+    lightbox.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove("open");
+    lightbox.setAttribute("aria-hidden","true");
+    lightboxImg.src = "";
+    document.body.style.overflow = "";
+  }
+
+  // Click en imagen del collage
+  document.addEventListener("click", (e) => {
+    const img = e.target.closest(".collage-grid img");
+    if (img) openLightbox(img.src, img.alt || "Imagen ampliada");
+
+    if (e.target?.dataset?.close === "true") closeLightbox();
+  });
+
+  if (closeBtn) closeBtn.addEventListener("click", closeLightbox);
+
+  // Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lightbox.classList.contains("open")) {
+      closeLightbox();
+    }
+  });
+});
+
+</script>
+
+<!-- ================== MODAL ENTREGABLE 5 ================== -->
+<div class="modal" id="modalE5" aria-hidden="true">
+  <div class="modal-backdrop" data-close="true"></div>
+
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Entregable 5 - Collage">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Entregable 5 | Evidencia visual</div>
+        <div class="modal-subtitle">Collage de 10 imágenes</div>
+      </div>
+      <button class="modal-close" type="button" id="closeModalE5" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="collage-grid">
+      <img src="./Imagenes/CX_Capital Humano.jpg" alt="Evidencia 1">
+      <img src="./Imagenes/CX_CAT.jpg" alt="Evidencia 2">
+      <img src="./Imagenes/CX_Legal.jpg" alt="Evidencia 3">
+      <img src="./Imagenes/CX_Mercadotecnia.jpg" alt="Evidencia 4">
+      <img src="./Imagenes/CX_Red comercial.jpg" alt="Evidencia 5">
+      <img src="./Imagenes/CX_NPS_Actinver.jpg" alt="Evidencia 6">
+      <img src="./Imagenes/CX_NPS_ActinverII.jpg" alt="Evidencia 7">
+      <img src="./Imagenes/CX_VoGA.png" alt="Evidencia 8">
+      <img src="./Imagenes/CX_VoGAII.png" alt="Evidencia 9">
+      <img src="./Imagenes/CX_VoGA_GPTW.jpg" alt="Evidencia 10">
+    </div>
+
+      <div class="img-lightbox" id="imgLightbox" aria-hidden="true">
+    <div class="img-lightbox-backdrop" data-close="true"></div>
+
+    <div class="img-lightbox-card" role="dialog" aria-modal="true" aria-label="Vista ampliada">
+      <button class="img-lightbox-close" type="button" id="closeImgLightbox" aria-label="Cerrar">✕</button>
+      <img id="lightboxImg" src="" alt="Imagen ampliada">
+    </div>
+  </div>
+  
+
+  </div>
+</div>
+<!-- ================== FIN MODAL ENTREGABLE 5 ================== -->
+
+</body>
+</html>
